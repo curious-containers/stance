@@ -144,7 +144,7 @@ curl localhost:5000/work-for/5
 
 It is possible to use the same code with a mod_wsgi setup. Create a wsgi file.
 
-**flask_with_worker.wsgi**
+**examples/flask_with_worker.wsgi**
 
 ```python
 import os
