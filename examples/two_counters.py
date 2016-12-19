@@ -21,10 +21,10 @@ class Counter:
         return os.getpid()
 
 
-s1 = Stance(clazz=Counter, port=17310)
+s1 = Stance(_class=Counter, port=17310)
 counter1 = s1.register()
 
-s2 = Stance(clazz=Counter, port=17311)
+s2 = Stance(_class=Counter, port=17311)
 counter2 = s2.register(start_value=100)
 
 if s1.created_new_instance():

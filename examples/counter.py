@@ -17,7 +17,7 @@ class Counter:
     def get_count(self):
         return self._count
 
-s = Stance(clazz=Counter, port=17310, secret='PASSWORD')
+s = Stance(_class=Counter, port=17310, secret='PASSWORD')
 counter = s.register(start_value=100)
 
 if s.created_new_instance():

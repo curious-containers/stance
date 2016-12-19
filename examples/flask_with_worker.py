@@ -45,7 +45,7 @@ class Worker:
     def getpid(self):
         return os.getpid()
 
-s = Stance(clazz=Worker, port=17310)
+s = Stance(_class=Worker, port=17310)
 worker = s.register()
 
 if s.created_new_instance():
