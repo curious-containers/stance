@@ -76,8 +76,8 @@ sudo apt install apache2 libapache2-mod-wsgi-py3
 pip3 install --user flask
 ```
 
-A web application can profit from multiprocessing to speed up requests and to fully utilize a CPU. 
-But in some cases there might be program code, that always needs to be executed sequentially.
+A web application can profit from **multiprocessing** to speed up requests and to fully utilize a CPU. 
+But in some cases there might be program code, that always needs to be executed **sequentially**.
 With stance, such a worker can be executed in the context of the web application.
 
 **examples/flask_with_worker.py**
@@ -135,14 +135,14 @@ This code can be executed as a single process flask development server.
 python3 examples/flask_with_worker.py
 ```
 
-Send some work, which will be executed sequentially.
+Send some work to be executed sequentially.
 
 ```bash
 curl localhost:5000/work-for/10
 curl localhost:5000/work-for/5
 ```
 
-It is possible to use the same code with a mod_wsgi setup. Create a wsgi file.
+It is possible to use the same code with a mod_wsgi setup.
 
 **examples/flask_with_worker.wsgi**
 
@@ -155,7 +155,15 @@ sys.path.insert(0, os.path.split(os.path.abspath(__file__))[0])
 from flask_with_worker import app as application
 ```
 
-And create a new site config for Apache2.
+Create a new site config for Apache2. It is important to use the `WSGIDaemonProcess` directive and to set
+`WSGIApplicationGroup %{GLOBAL}`, because we want the processes to be created once. Every daemon process tries to
+connect to the worker or tries to create a new instance, if it is not yet running. They can now use this instance, as
+long as the web server is running and it will be terminated when Apache shuts down. The `WSGIImportScript` is a
+recommended directive, because it will start the processes and execute the *flask_with_worker.wsgi* script for each
+daemon, as soon as Apache starts. Otherwise it would wait for incoming requests.
+
+The web application will be executed with 4 daemon processes, each serving up to 16 requests concurrently. All daemon
+processes will share the same worker process.
 
 **/etc/apache2/sites-available/flask_with_worker.conf**
 
@@ -180,9 +188,7 @@ Listen 5000
 </VirtualHost>
 ```
 
-Enable the site config and restart apache2. The web application will be executed with 4 daemon processes, each serving
-up to 16 requests concurrently. All daemon processes will share the same worker process. The print output goes to the
-apache2 error log.
+Enable the site config and restart apache2. The print output goes to the apache2 error log.
 
 ```bash
 sudo a2ensite flask_with_worker
@@ -190,9 +196,13 @@ sudo service apache2 restart
 tail -f /var/log/apache2/error.log
 ```
 
-Send some work, which will be executed sequentially.
+Send some work to be executed sequentially.
 
 ```bash
 curl localhost:5000/work-for/10
 curl localhost:5000/work-for/5
 ```
+
+## Projects using stance
+
+[CC-Server of Curious Containers](https://github.com/curious-containers/cc-server)
