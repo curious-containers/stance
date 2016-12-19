@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import atexit
+import base64
 import multiprocessing.managers
 
 __all__ = ['Stance', 'StanceException']
@@ -39,15 +40,24 @@ class Stance:
             secret (str): Connection secret used for TLS communication. If ``secret``
                 is left as ``None`` the default (``secret``) is used.
     """
+
+    __slots__ = (
+        '_class', '_port', '_secret', '_instance', '_new_instance'
+    )
+
     def __init__(self, _class, *, port, secret=None):
         if secret is None:
             secret = 'secret'
 
         self._class = _class
-        self._port = port
-        self._secret = secret.encode('utf-8')
+        self._port = int(port)
+        self._secret = base64.b64encode(b'%d_%s' % (self._port, secret.encode('utf-8')))
         self._instance = None
         self._new_instance = False
+
+    def __repr__(self):
+        return '<Stance cls="%s" port=%d secret=%s is_new=%s>' % (
+            self._class.__name__, self.port, self._secret[0:8].decode('utf-8'), self.is_new)
 
     @classmethod
     def create(cls, _class, *, port, secret=None, args=None, kwargs=None):
@@ -74,6 +84,19 @@ class Stance:
     def inst(self):
         """ Returns the instance of the underlying :obj:`._class` object. """
         return self._instance
+
+    @property
+    def is_new(self):
+        """ Swallows :obj:`.StanceException` checking for instance newness. """
+        try:
+            return self.created_new_instance()
+        except StanceException:
+            return None
+
+    @property
+    def port(self):
+        """ Returns the port number of the registered class / instance. """
+        return self._port
 
     def created_new_instance(self):
         """ Checks if the instance was created or connected to.
