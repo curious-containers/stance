@@ -14,7 +14,7 @@ app = Flask('stance-example')
 
 @app.route('/work-for/<seconds>', methods=['GET'])
 def work(seconds):
-    worker.put_task(seconds, 'Work done!')
+    worker.put_task(int(seconds), 'Work done!')
     return 'Task handed over to worker with PID {}!'.format(worker.getpid())
 
 
@@ -36,7 +36,7 @@ class Worker:
     def _do_work_sequentially(self):
         while True:
             seconds, message = self._task_queue.get()
-            sleep(int(seconds))
+            sleep(seconds)
             print(message)
 
     def put_task(self, seconds, message):
