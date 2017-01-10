@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='stance',
-    version='1.1',
+    version='1.2',
     description='stance provides self-instantiating worker processes for Python 3',
     author='Christoph Jansen',
     author_email='christoph@gnork.org',
