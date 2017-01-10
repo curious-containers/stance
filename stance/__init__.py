@@ -2,7 +2,8 @@ import os
 import sys
 import time
 import atexit
-import base64
+import hashlib
+import binascii
 import multiprocessing.managers
 
 __all__ = ['Stance', 'StanceException']
@@ -51,13 +52,16 @@ class Stance:
 
         self._class = _class
         self._port = int(port)
-        self._secret = base64.b64encode(b'%d_%s' % (self._port, secret.encode('utf-8')))
+        self._secret = binascii.hexlify(
+            hashlib.pbkdf2_hmac('sha256', secret.encode('utf-8'), str(port).encode('utf-8'), 100000)
+        )
         self._instance = None
         self._new_instance = False
 
     def __repr__(self):
         return '<Stance cls="%s" port=%d secret=%s is_new=%s>' % (
-            self._class.__name__, self.port, self._secret[0:8].decode('utf-8'), self.is_new)
+            self._class.__name__, self.port, self._secret[0:8].decode('utf-8'), self.is_new
+        )
 
     @classmethod
     def create(cls, _class, *, port, secret=None, args=None, kwargs=None):
