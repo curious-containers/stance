@@ -98,7 +98,7 @@ app = Flask('stance-example')
 @app.route('/work-for/<seconds>', methods=['GET'])
 def work(seconds):
     worker.put_task(int(seconds), 'Work done!')
-    return 'Task handed over to worker with PID {}!\n'.format(worker.getpid())
+    return 'Task handed over to worker with PID {}!'.format(worker.getpid())
 
 
 class Worker:
