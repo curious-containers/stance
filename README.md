@@ -9,6 +9,8 @@ controlled by the operating system (e.g. with [systemd](https://www.freedesktop.
 extent, stance is a light-weight alternative to [Celery](http://www.celeryproject.org/) with
 [RabbitMQ](http://www.rabbitmq.com/) or other external message brokers.
 
+This does **not** work on Windows, due to restrictions of the multiprocessing library.
+
 ## Quick start
 
 ```bash
